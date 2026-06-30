@@ -1,0 +1,251 @@
+.msg-bubble {
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  font-size: 17px;
+  font-weight: 550;
+  line-height: 1.9;
+  color: #111827;
+}
+.msg-bubble h1, .msg-bubble h2, .msg-bubble h3, .msg-bubble h4 {
+  font-family: 'Georgia', serif;
+  color: #111827;
+  font-weight: 700;
+}
+
+.msg-bubble h1 {
+  font-size: 26px;
+  font-weight: 800;
+  margin: 36px 0 14px 0;
+  border-bottom: 2px solid #111827;
+  padding-bottom: 10px;
+}
+
+.msg-bubble h2 {
+  font-size: 22px;
+  margin: 30px 0 12px 0;
+  border-bottom: 1px solid #d1d5db;
+  padding-bottom: 8px;
+}
+
+.msg-bubble h3 {
+  font-size: 18px;
+  margin: 22px 0 8px 0;
+}
+
+.msg-bubble h4 {
+  font-size: 22px;
+  margin: 18px 0 8px 0;
+  color: #374151;
+}
+
+.msg-bubble p {
+  margin: 0 0 16px;
+  line-height: 1.9;
+  color: #111827;
+}
+
+.msg-bubble ul {
+  padding-left: 0;
+  margin: 8px 0 20px;
+  list-style: none;
+}
+
+.msg-bubble ul li {
+  position: relative;
+  padding-left: 20px;
+  margin-bottom: 12px;
+  line-height: 1.8;
+  color: #111827;
+}
+
+.msg-bubble ul > li::before {
+  display: none;
+}
+
+
+.msg-bubble ul ul li::before {
+  content: '';
+  display: block;
+  position: absolute;
+  left: 0;
+  top: 11px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  border: 1.5px solid #111827;
+  background: white;
+}
+
+.msg-bubble ol {
+  padding-left: 0;
+  margin: 8px 0 20px;
+  counter-reset: list-counter;
+  list-style: none;
+}
+
+.msg-bubble ol > li {
+  position: relative;
+  padding-left: 36px;
+  margin-bottom: 14px;
+  line-height: 1.8;
+  color: #111827;
+  counter-increment: list-counter;
+}
+.msg-bubble ol > li::before {
+  content: counter(list-counter) ".";
+  position: absolute;
+  left: 0;
+  top: 0;
+  color: #161616;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.msg-bubble ol li ul li {
+  position: relative;
+  padding-left: 28px;
+  margin-bottom: 10px;
+  line-height: 1.8;
+}
+
+.msg-bubble ol li ul li::before {
+  content: '';
+  display: block;
+  position: absolute;
+  left: 0;
+  top: 8px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 2px solid #111827;
+  background: white;
+}
+
+.msg-bubble strong {
+  font-weight: 700;
+  color: #111827;
+  font-size: 15px;
+}
+.msg-bubble code {
+  padding: 2px 8px;
+  font-size: 14px;
+  color: #dc2626;
+  background: #f3f4f6;
+  border: 1px solid #9ca3af;
+  border-radius: 4px;
+  font-weight: 600;
+}
+.msg-bubble blockquote {
+  border-left: 3px solid #060707;
+  padding-left: 16px;
+  margin: 14px 0;
+  color: #6b7280;
+  font-style: italic;
+}
+.msg-bubble pre {
+  background: #f8f9fa;
+  padding: 16px;
+  border-radius: 8px;
+  overflow-x: auto;
+  margin: 14px 0;
+  border: 1px solid #e5e7eb;
+}
+
+.msg-bubble pre code {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 15px;
+  font-weight: 600;
+  font-family: 'Cascadia Code', 'Fira Code', 'JetBrains Mono', monospace;
+  line-height: 1.8;
+  color: inherit;
+}
+.msg-bubble a {
+  color: #111827;
+  text-decoration: underline;
+}
+
+.msg-bubble h1 strong,
+.msg-bubble h2 strong,
+.msg-bubble h3 strong {
+  font-size: inherit;
+  font-weight: inherit;
+  font-family: inherit;
+  color: inherit;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+.code-block {
+  position: relative;
+  margin: 14px 0;
+  overflow: hidden;
+  border-radius: 8px;
+}
+
+.code-header {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  right: 10px;
+  z-index: 2;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  pointer-events: none;
+  padding-right: 10px;
+}
+
+.code-lang {
+  display: inline-flex;
+  align-items: center;
+  min-height: 22px;
+  padding: 2px 8px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #6b7280;
+  font-family: monospace;
+  background: #e7e5e4;
+  border-radius: 4px;
+  pointer-events: auto;
+  text-transform: lowercase;
+}
+
+.copy-btn {
+  background: none;
+  border: none;
+  padding: 4px;
+  cursor: pointer;
+  color: #6b7280;
+  transition: color 0.2s;
+  line-height: 1;
+  pointer-events: auto;
+}
+
+.copy-btn svg,
+.copy-btn .ph {
+  width: 16px;
+  height: 16px;
+  display: block;
+}
+
+.copy-btn:hover {
+  color: #111827;
+}
+
+.code-block pre {
+  background: #f8f9fa;
+  margin: 0;
+  padding: 42px 16px 16px;
+  border-radius: 0;
+  border: none;
+}

@@ -1,0 +1,1510 @@
+/* ── User message action buttons (edit + copy) ── */
+.user-msg-actions {
+  display: flex;
+  gap: 4px;
+  margin-top: 5px;
+  justify-content: flex-end;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+
+.msg-block.user-message:hover .user-msg-actions {
+  opacity: 1;
+}
+
+.user-action-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  padding: 0;
+}
+
+.user-action-btn:hover {
+  background: rgba(0,0,0,0.07);
+  color: #111827;
+}
+
+
+
+/* ═══════════════════════════════════════════════════════
+   AXIS AI — style.css
+   Refactored for clean architecture:
+   - All design tokens in :root (single source of truth)
+   - Searching indicator is a DISTINCT state (not part of thinking)
+   - Settings modal fully styled (was missing from original)
+   - Empty state uses proper CSS classes (not inline styles)
+   ═══════════════════════════════════════════════════════ */
+
+/* ─── DESIGN TOKENS ─── */
+:root {
+  /* Backgrounds */
+  --bg-body:     #fdfdfc;
+  --bg-surface:  #ffffff;
+  --bg-hover:    #f3f4f6;
+
+  /* Borders */
+  --border:       #e5e7eb;
+  --border-focus: #d1d5db;
+
+  /* Text */
+  --text-primary:   #374151;
+  --text-secondary: #6b7280;
+  --text-tertiary:  #9ca3af;
+
+  /* Accent (indigo) */
+  --accent:       #6366f1;
+  --accent-hover: #4f46e5;
+  --accent-light: #e0e7ff;
+
+  /* Semantic states */
+  --error:   #ef4444;
+  --success: #10b981;
+
+  /* Thinking block */
+  --thinking-bg:     #f9fafb;
+  --thinking-border: #f3f4f6;
+
+  /* User bubble */
+  --user-bubble-bg:   #f3f4f6;
+  --user-bubble-text: #1f2937;
+
+  /* Searching indicator  — distinct brand color (amber) so it
+     is visually separate from the indigo accent used for thinking */
+  --search-color:  #d97706;
+  --search-bg:     #fffbeb;
+  --search-border: #fde68a;
+
+  /* Radii */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px rgba(0,0,0,.05);
+  --shadow-md: 0 4px 12px rgba(0,0,0,.07);
+  --shadow-lg: 0 8px 24px rgba(0,0,0,.12);
+
+  /* Transitions */
+  --transition: 0.2s ease;
+}
+
+/* ─── RESET ─── */
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* ─── BASE ─── */
+html {
+  overflow: hidden;
+  height: 100%;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  background: #e5e7eb;
+  color: var(--text-primary);
+  height: 100vh;
+  display: flex;
+  overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ─── SCROLLBAR ─── */
+::-webkit-scrollbar            { width: 6px; }
+::-webkit-scrollbar-track      { background: transparent; }
+::-webkit-scrollbar-thumb      { background: #d1d5db; border-radius: 99px; }
+::-webkit-scrollbar-thumb:hover{ background: #9ca3af; }
+
+
+/* ══════════════════════════════════════
+   SIDEBAR
+══════════════════════════════════════ */
+.sidebar {
+  width: 260px;
+  flex-shrink: 0;
+  background: var(--bg-surface);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  transition: width 0.3s ease;
+  overflow: hidden;
+}
+
+/* Top: brand + new chat */
+.sidebar-top {
+  padding: 20px 16px 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.brand-icon {
+  width: 32px;
+  height: 32px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-primary);
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.brand-name {
+  font-size: 16px;
+  font-weight: 600;
+  color: #111827;
+}
+
+.new-chat-btn {
+  width: 100%;
+  padding: 10px 14px;
+  background: white;
+  color: var(--text-primary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: var(--transition);
+  font-family: inherit;
+  margin-top: 27px;
+}
+
+.new-chat-btn:hover { background: var(--bg-hover); }
+.new-chat-btn svg,
+.new-chat-btn .ph   { width: 16px; height: 16px; flex-shrink: 0; }
+
+/* Scroll area */
+.sidebar-scroll {
+  flex: 1;
+  overflow-y: auto;
+  padding-top: 10px;
+}
+
+.sidebar-section {
+  padding: 12px 16px 8px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.tool-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  color: var(--text-secondary);
+  transition: var(--transition);
+}
+
+.tool-item:hover {
+  background: var(--bg-hover);
+  color: #111827;
+}
+
+/* Footer */
+.sidebar-footer {
+  padding: 12px;
+  border-top: 1px solid var(--border);
+}
+
+.sidebar-footer .tool-item {
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+}
+
+
+/* ══════════════════════════════════════
+   MAIN CONTENT
+══════════════════════════════════════ */
+.main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-body);
+  min-width: 0;
+  overflow: hidden;
+  position: relative;
+}
+
+/* Message scroll area */
+#msgArea {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px 0;
+}
+.msg-wrap {
+  max-width: 970px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+
+
+/* ══════════════════════════════════════
+   EMPTY STATE
+   (was inline styles — now proper CSS)
+══════════════════════════════════════ */
+.empty-state-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  color: var(--text-tertiary);
+}
+
+.empty-logo  { font-size: 32px; margin-bottom: 12px; font-weight: 700; color: #374151; }
+.empty-title { font-size: 20px; color: #374151; margin-bottom: 6px; }
+.empty-sub   { font-size: 14px; }
+
+
+/* ══════════════════════════════════════
+   MESSAGE BLOCKS
+══════════════════════════════════════ */
+.msg-block {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 32px;
+  animation: msgRise 0.3s ease-out;
+}
+
+@keyframes msgRise {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.msg-block.user-message { justify-content: flex-end; }
+.msg-block.ai-message   { justify-content: flex-start; }
+
+/* Avatars */
+.av {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 600;
+  flex-shrink: 0;
+  border: 1px solid var(--border);
+}
+
+.av.ai   { background: var(--bg-surface); color: var(--text-primary); }
+.av.user { background: var(--user-bubble-bg); color: var(--text-primary); }
+
+/* Content column */
+.msg-content {
+  display: flex;
+  flex-direction: column;
+  max-width: 85%;
+}
+
+.user-message .msg-content { align-items: flex-end; }
+.ai-message   .msg-content { align-items: flex-start; flex: 1; }
+
+.pdf-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 10px;
+  padding: 8px 14px;
+  background: #f3f4f6;
+  border: 1px solid #e5e7eb;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  font-weight: 500;
+  color: #374151;
+  cursor: pointer;
+  font-family: inherit;
+  transition: var(--transition);
+}
+
+.pdf-btn:hover {
+  background: #e5e7eb;
+  border-color: #d1d5db;
+}
+
+.msg-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-bottom: 6px;
+}
+.user-message .msg-name { display: none; }
+
+.msg-time {
+  font-size: 11px;
+  color: var(--text-tertiary);
+  margin-left: 8px;
+}
+
+/* Bubbles */
+.msg-bubble {
+  padding: 14px 18px;
+  border-radius: var(--radius-lg);
+  font-size: 15px;
+  line-height: 1.7;
+  font-family: 'Inter', sans-serif;
+}
+
+.user-message .msg-bubble {
+  background: var(--user-bubble-bg);
+  color: var(--user-bubble-text);
+  border-bottom-right-radius: 4px;
+}
+
+.ai-message .msg-bubble {
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  border-top-left-radius: 4px;
+  width: 100%;
+}
+
+/* ─── Markdown inside bubbles ─── */
+.msg-bubble p              { margin-bottom: 12px; }
+.msg-bubble p:last-child   { margin-bottom: 0; }
+.msg-bubble strong         { font-weight: 600; color: var(--text-primary); }
+.msg-bubble h1, .msg-bubble h2, .msg-bubble h3 {
+  margin: 20px 0 10px;
+  color: var(--text-primary);
+  font-family: 'Inter', sans-serif;
+  font-weight: 700;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+}
+.msg-bubble h1 { font-size: 24px; }
+.msg-bubble h2 { font-size: 20px; }
+.msg-bubble h3 { font-size: 17px; }
+.msg-bubble ul, .msg-bubble ol { padding-left: 24px; margin-bottom: 12px; }
+.msg-bubble li             { margin-bottom: 6px; }
+
+.msg-bubble table,
+.msg-bubble th,
+.msg-bubble td {
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+}
+
+.msg-bubble pre {
+  background: #f3f4f6;
+  padding: 16px;
+  border-radius: 8px;
+  overflow-x: auto;
+  margin: 12px 0;
+  border: 1px solid var(--border);
+}
+
+.msg-bubble pre code {
+  background: none;
+  color: #1f2937;
+  padding: 0;
+  font-size: 13px;
+  font-family: 'Fira Code', monospace;
+  border: none;
+}
+
+.msg-bubble code {
+  background: #f3f4f6;
+  color: #ef4444;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 13px;
+  font-family: monospace;
+}
+
+
+/* ══════════════════════════════════════
+   THINKING BLOCK (AI reasoning steps)
+   Shown when isThinking = true.
+   This is SEPARATE from the searching indicator.
+══════════════════════════════════════ */
+.thinking-block {
+  background: var(--thinking-bg);
+  border: 1px solid var(--thinking-border);
+  border-radius: var(--radius-md);
+  margin-bottom: 12px;
+  width: 100%;
+  overflow: hidden;
+}
+
+.thinking-header {
+  padding: 12px 16px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.thinking-header svg   { width: 16px; height: 16px; flex-shrink: 0; }
+.thinking-header .ph   { font-size: 16px; flex-shrink: 0; }
+
+.thinking-steps {
+  padding: 0 16px 12px;
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+.thinking-step {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.thinking-step-icon { color: var(--success); font-size: 12px; margin-top: 2px; }
+.thinking-step-icon .ph { font-size: 12px; }
+
+.hidden-steps { display: none; }
+
+
+/* ══════════════════════════════════════
+   SEARCHING INDICATOR
+   ─────────────────────────────────────
+   This is the KEY new feature:
+   A DISTINCT amber-colored pill that appears
+   ONLY when the Tavily web search API is
+   actively fetching. It is completely
+   independent of the thinking mode block.
+
+   Architecture:
+   - Positioned above the input area (sticky bottom)
+   - Shows a CSS spinner + label
+   - Controlled by UIController.showSearchingIndicator()
+     and UIController.hideSearchingIndicator()
+    - Hidden by default with .hidden class
+══*/
+/* ─── WEB SEARCH INDIKATORI (SARIQ Aylanuvchi) ─── */
+.searching-indicator {
+    display: flex;
+    align-items: center;
+    justify-content: center; /* O'rtaga joylash uchun */
+    gap: 8px;
+    
+    /* O'lchamlarni ixchamladik */
+    width: fit-content;      /* Kontent hajmida bo'ladi */
+    margin: 10px auto;       /* 'auto' uni qoq o'rtaga qo'yadi */
+    padding: 6px 14px;       /* Ixchamroq padding */
+    
+    background: var(--search-bg);
+    border: 1px solid var(--search-border);
+    border-radius: 99px;     /* Chiroyli dumaloq shakl */
+    
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--search-color);
+    
+    animation: fadeSlideUp 0.5s ease;
+}
+
+@keyframes fadeSlideUp {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+.searching-spinner {
+    width: 14px;
+    height: 14px;
+    border: 2px solid var(--search-border);
+    border-top-color: var(--search-color);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    flex-shrink: 0;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+.hidden { 
+    display: none !important; 
+}
+
+
+
+/* ══════════════════════════════════════
+   INPUT AREA — IDE-style, at bottom
+══════════════════════════════════════ */
+.input-area-container {
+  padding: 0 10px 24px;
+}
+
+.input-area-wrapper {
+  max-width: 800px;
+  margin: 0 auto;
+  background: #f8f9fb;
+  border: 1px solid #e2e5ea;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+  display: flex;
+  flex-direction: column;
+  transition: border-color var(--transition), box-shadow var(--transition);
+  overflow: hidden;
+}
+
+.input-area-wrapper.voice-hidden {
+  display: none !important;
+}
+
+.voice-wave-panel.hidden + .input-area-wrapper {
+  display: flex !important;
+}
+
+.input-area-wrapper:focus-within {
+  border-color: #c4c9d1;
+  box-shadow: 0 1px 6px rgba(0,0,0,0.10);
+}
+
+/* ── Editor body: gutter + main area ── */
+.editor-body {
+  display: flex;
+  min-height: 44px;
+}
+
+/* Line number gutter */
+.editor-gutter {
+  flex-shrink: 0;
+  width: 44px;
+  padding: 10px 0;
+  background: #f2f3f5;
+  border-right: 1px solid #e8eaed;
+  text-align: right;
+  font-family: 'Fira Code', 'Cascadia Code', 'JetBrains Mono', monospace;
+  font-size: 12px;
+  line-height: 1.6;
+  color: #9ca3af;
+  user-select: none;
+  overflow: hidden;
+}
+.editor-gutter .gutter-line {
+  padding: 0 10px 0 0;
+  white-space: pre;
+}
+
+/* Main editor area: overlay + textarea stacked */
+.editor-main {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+}
+
+/* Syntax highlight overlay (behind textarea) */
+.editor-highlight {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  margin: 0;
+  padding: 10px 14px;
+  font-family: 'Fira Code', 'Cascadia Code', 'JetBrains Mono', monospace;
+  font-size: 13px;
+  line-height: 1.6;
+  color: #374151;
+  white-space: pre-wrap;
+  word-break: break-word;
+  pointer-events: none;
+  overflow: auto;
+  border: none;
+  background: transparent;
+  scrollbar-width: none;
+}
+.editor-highlight::-webkit-scrollbar { display: none; }
+.editor-highlight code {
+  font-family: inherit;
+  background: none !important;
+  padding: 0 !important;
+  color: inherit;
+}
+
+/* The actual textarea — transparent, sits on top of highlight */
+textarea {
+  position: relative;
+  width: 100%;
+  border: none;
+  outline: none;
+  font-family: 'Fira Code', 'Cascadia Code', 'JetBrains Mono', monospace;
+  font-size: 13px;
+  color: transparent;
+  background: transparent;
+  resize: none;
+  max-height: 300px;
+  padding: 10px 14px;
+  line-height: 1.6;
+  caret-color: #374151;
+  z-index: 1;
+  overflow-y: auto;
+}
+textarea::placeholder {
+  color: #b0b7c3;
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+}
+
+/* Show placeholder as pseudo on the overlay when textarea is empty */
+.editor-main:has(textarea:placeholder-shown) .editor-highlight {
+  color: transparent;
+}
+
+.input-bottom-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 12px 8px;
+}
+
+/* ─── Action groups ─── */
+.left-actions, .right-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* File upload (+) button */
+.plus-btn {
+  width: 30px;
+  height: 30px;
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  background: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-secondary);
+  position: relative;
+  transition: var(--transition);
+}
+
+.plus-btn:hover { border-color: #aaa; color: #111; }
+
+
+/* Web search toggle button
+   Active state uses a tinted border + text color — INDEPENDENT of mode dropdown */
+.web-btn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 11px;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  background: white;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-family: inherit;
+  transition: var(--transition);
+}
+
+.web-btn:hover { border-color: #aaa; color: #333; }
+
+/* Active = web search is ON */
+.web-btn.active {
+  background: var(--search-bg);
+  border-color: var(--search-color);
+  color: var(--search-color);
+}
+
+/* Send button — clean/minimal */
+.send-btn {
+  width: 34px;
+  height: 34px;
+  background: #e8ebf0;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+  flex-shrink: 0;
+}
+
+.send-btn svg,
+.send-btn .ph {
+  width: 18px;
+  height: 18px;
+  color: #6b7280;
+}
+
+.send-btn:hover    { background: #dce0e6; color: #374151; }
+.send-btn:active   { transform: scale(0.92); }
+.send-btn:disabled { background: #f3f4f6; color: #d1d5db; cursor: not-allowed; }
+
+
+/* ══════════════════════════════════════
+   MODE DROPDOWN (Fast / Thinking)
+   This controls ONLY the AI reasoning model.
+   It does NOT control web search.
+══════════════════════════════════════ */
+/* Thinking mode active state: tinted with accent color */
+.mode-dropdown-wrap {
+  position: relative;
+  margin-right: 10px;
+}
+
+.mode-trigger {
+  padding: 8px 14px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  font-size: 13px;
+  font-weight: 500;
+  color: #666;
+  cursor: pointer;
+  font-family: inherit;
+  transition: var(--transition);
+}
+
+.mode-trigger:hover {
+  background: #f3f4f6;
+}
+
+/* Thinking mode active state */
+.mode-trigger.thinking-active {
+  background: transparent;
+  color: #555;
+}
+
+.mode-dropdown {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  right: 0;
+  
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 4px;
+  width: 130px;
+  box-shadow: var(--shadow-lg);
+  display: none;
+  z-index: 100;
+  animation: popUp 0.15s ease;
+}
+
+@keyframes popUp {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.mode-dropdown.open {
+  display: block;
+}
+
+.mode-item {
+  padding: 6px 12px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.mode-item + .mode-item {
+  border-top: 1px solid #e5e7eb;
+}
+
+.mode-item:hover {
+  background: #f5f5f5;
+}
+
+.mode-item.active {
+  background: transparent;
+}
+
+.mode-item-name {
+  font-size: 13px;
+  font-weight: 500;
+  color: #333;
+}
+
+/* ══════════════════════════════════════
+   SETTINGS OVERLAY
+   (was completely missing from original)
+══════════════════════════════════════ */
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.35);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.setup-card {
+  background: white;
+  padding: 32px;
+  border-radius: var(--radius-lg);
+  width: 440px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: var(--shadow-lg);
+  animation: slideUp 0.25s ease;
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.setup-card-header { margin-bottom: 24px; }
+
+.setup-card-header h2 {
+  font-size: 20px;
+  color: #111827;
+  margin-bottom: 6px;
+}
+
+.setup-card-header p {
+  font-size: 14px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.setup-field { margin-bottom: 16px; }
+
+.setup-field label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  margin-bottom: 6px;
+  color: #374151;
+}
+
+/* Small badge next to label showing the model name */
+.key-hint {
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--text-tertiary);
+  background: #f3f4f6;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.key-optional { color: var(--search-color); background: var(--search-bg); }
+
+.setup-field input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  outline: none;
+  font-family: inherit;
+  font-size: 14px;
+  color: #111827;
+  transition: border-color var(--transition);
+}
+
+.setup-field input:focus { border-color: var(--accent); }
+
+/* Action row: cancel + save */
+.setup-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 24px;
+}
+
+.setup-btn-cancel {
+  flex: 1;
+  padding: 10px;
+  background: white;
+  color: var(--text-secondary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-weight: 500;
+  font-size: 14px;
+  cursor: pointer;
+  transition: var(--transition);
+  font-family: inherit;
+}
+
+.setup-btn-cancel:hover { background: var(--bg-hover); color: #111; }
+
+.setup-btn {
+  flex: 2;
+  padding: 10px;
+  background: #4b5563;
+  color: white;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-weight: 500;
+  font-size: 14px;
+  cursor: pointer;
+  transition: var(--transition);
+  font-family: inherit;
+}
+
+.setup-btn:hover { background: #374151; }
+
+
+/* ══════════════════════════════════════
+   RESPONSIVE — compact layout on narrow screens
+══════════════════════════════════════ */
+@media (max-width: 640px) {
+  .sidebar { display: none; }
+
+  .msg-wrap,
+  .input-area-container { padding-left: 16px; padding-right: 16px; }
+
+  .setup-card { width: calc(100vw - 32px); padding: 24px; }
+}
+
+/* Voice button */
+.voice-btn {
+  position: relative;
+  
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  
+  width: 36px;
+  height: 36px;
+  
+  background-color: #e5e5e5; 
+  border: none; 
+  border-radius: 50%; 
+  color: #333; 
+  
+  cursor: pointer;
+  padding: 0;
+  
+  transition: all 0.2s ease; 
+}
+
+.voice-btn:hover {
+  background-color: #d4d4d4; 
+}
+
+.voice-btn:active {
+  transform: scale(0.92); 
+}
+
+.voice-btn svg,
+.voice-btn .ph {
+  width: 22px;
+  height: 22px;
+}
+
+
+/* ========================================= */
+/* QORA YOVUZ (Tooltip) QISMI                */
+/* ========================================= */
+
+.voice-btn::before {
+  content: attr(data-tooltip); 
+  position: absolute;
+  bottom: 100%; 
+  left: 50%;
+  transform: translateX(-50%) translateY(10px); 
+  
+  background-color: #2b2b2b;
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 500;
+  padding: 6px 12px;
+  border-radius: 6px;
+  white-space: nowrap;
+  
+  opacity: 0; 
+  visibility: hidden; 
+  transition: all 0.2s ease; 
+  pointer-events: none; 
+}
+
+/* Sichqoncha kelganda yozuv pastdan tepaga chiqadi */
+.voice-btn:hover::before {
+  opacity: 1; 
+  visibility: visible;
+  transform: translateX(-50%) translateY(-8px); 
+}
+
+.sources-block {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(255,255,255,0.08);
+}
+
+.sources-title {
+  font-size: 11px;
+  color: #888;
+  margin-bottom: 8px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.sources-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.source-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 20px;
+  text-decoration: none;
+  color: #aaa;
+  font-size: 12px;
+  transition: all 0.2s;
+}
+
+.source-item:hover {
+  background: rgba(99,102,241,0.15);
+  border-color: #6366f1;
+  color: #fff;
+}
+
+.source-item img {
+  width: 14px;
+  height: 14px;
+  border-radius: 2px;
+}
+
+.sidebar.collapsed {
+  width: 0;
+  padding: 0;
+  overflow: hidden;
+  border-right: none;
+  min-width: 0;
+}
+
+.sidebar-toggle-btn {
+  all: unset;
+  cursor: pointer;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: fixed;
+  top: 12px;
+  left: 268px;
+  z-index: 999;
+  transition: left 0.3s ease;
+}
+
+.sidebar-toggle-btn.btn-collapsed {
+  left: 10px;
+}
+
+.sidebar-toggle-btn svg,
+.sidebar-toggle-btn .ph {
+  width: 20px;
+  height: 20px;
+}
+
+
+
+.msg-bubble hr {
+  border: none;
+  border-top: 1px solid #e5e7eb;
+  margin: 16px 0;
+}
+
+
+
+.msg-bubble table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 12px 0;
+  border: 0.25px solid #e5e7eb;
+}
+
+.msg-bubble th,
+.msg-bubble td {
+  border: 0.25px solid #e5e7eb;
+  padding: 8px 12px;
+  text-align: left;
+}
+
+.msg-bubble th {
+  background: #fbfbfb;
+  font-weight: 600;
+}
+
+.lesson-title { color: inherit; }
+.lesson-en { color: inherit; }
+.lesson-uz { color: inherit; }
+.lesson-note { color: inherit; }
+.lesson-muted { color: inherit; }
+.lesson-card {
+  border: 0.25px solid #e5e7eb;
+  border-left: 2px solid #e5e7eb;
+  background: #fff;
+  border-radius: 12px;
+}
+
+
+.thinking-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--text-primary);
+  animation: pulse 1.2s ease-in-out infinite;
+}
+@keyframes pulse {
+  0%, 100% { opacity: 0.2; }
+  50% { opacity: 1; }
+}
+
+
+
+.msg-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 6px;
+}
+.action-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-secondary);
+  padding: 4px;
+  border-radius: 6px;
+  opacity: 0.5;
+}
+.action-btn:hover {
+  opacity: 1;
+}
+
+.sources-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.source-chip {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  background: #f9fafb;
+  font-size: 12px;
+  color: #374151;
+  text-decoration: none;
+  border: 1px solid #d1d5db;
+  white-space: nowrap;
+}
+
+.source-chip:hover {
+  background: #f3f4f6;
+  border-color: #9ca3af;
+}
+
+.source-chip img {
+  width: 14px;
+  height: 14px;
+  border-radius: 2px;
+}
+
+.source-more {
+  display: flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 20px;
+  background: #f9fafb;
+  font-size: 12px;
+  color: #6b7280;
+  border: 1px solid #d1d5db;
+}
+
+/* ══════════════════════════════════════
+   VOICE WAVE PANEL — hands-free ovoz rejimi
+   Holatlar: .state-listening / .state-processing / .state-speaking / .state-idle
+   Panel sessiya davomida hech qachon to'liq yo'qolmaydi — faqat .hidden
+   bilan (sessiya umuman tugaganda) yashiriladi.
+══════════════════════════════════════ */
+.voice-wave-panel {
+  position: relative;
+  max-width: 800px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 18px 16px 14px;
+  border-radius: var(--radius-xl);
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+  transition: border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.voice-wave-panel.hidden { display: none; }
+
+.voice-wave-canvas {
+  width: 100%;
+  max-width: 640px;
+  height: 72px;
+  display: block;
+}
+
+.voice-wave-status {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  color: var(--text-secondary);
+  transition: color 0.25s ease;
+}
+
+.voice-wave-close {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+  z-index: 2;
+}
+
+.voice-wave-close:hover {
+  background: rgba(0,0,0,0.06);
+  color: #111827;
+}
+
+/* ── Listening (siz gapirayapsiz) — qizil to'lqin ── */
+.voice-wave-panel.state-listening {
+  border-color: rgba(239,68,68,0.35);
+  box-shadow: 0 0 0 3px rgba(239,68,68,0.12);
+}
+.voice-wave-panel.state-listening .voice-wave-status { color: #ef4444; }
+
+/* ── Processing (qayta ishlanmoqda) — sariq, tinch pulsatsiya ── */
+.voice-wave-panel.state-processing {
+  border-color: rgba(217,119,6,0.35);
+  box-shadow: 0 0 0 3px rgba(217,119,6,0.10);
+}
+.voice-wave-panel.state-processing .voice-wave-status { color: #d97706; }
+
+/* ── Speaking (AI gapiradi) — ko'k to'lqin ── */
+.voice-wave-panel.state-speaking {
+  border-color: rgba(59,130,246,0.35);
+  box-shadow: 0 0 0 3px rgba(59,130,246,0.12);
+}
+.voice-wave-panel.state-speaking .voice-wave-status { color: #3b82f6; }
+
+/* ── Idle (sessiya yoniq, lekin lahzalik bo'shliq) — sokin, kulrang ── */
+.voice-wave-panel.state-idle {
+  border-color: var(--border);
+  box-shadow: var(--shadow-sm);
+}
+.voice-wave-panel.state-idle .voice-wave-status { color: var(--text-tertiary); }
+
+/* Mikrofon tugmasi sessiya davomida doim "faol" ko'rinsin */
+.voice-btn.session-active {
+  background-color: #fee2e2;
+  color: #ef4444;
+}
+.voice-btn.session-active:hover {
+  background-color: #fecaca;
+}
+/* ══════════════════════════════════════
+   INLINE EDIT — ChatGPT uslubida xabar tahrirlash
+══════════════════════════════════════ */
+.edit-inline-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+}
+
+.edit-inline-textarea {
+  width: 100%;
+  min-height: 60px;
+  padding: 12px 14px;
+  border: 1.5px solid var(--accent);
+  border-radius: var(--radius-md);
+  font-family: inherit;
+  font-size: 15px;
+  color: #111827;
+  background: #fff;
+  resize: none;
+  outline: none;
+  line-height: 1.6;
+  box-shadow: 0 0 0 3px rgba(99,102,241,0.1);
+  transition: border-color 0.2s ease;
+}
+
+.edit-inline-textarea:focus {
+  border-color: var(--accent-hover);
+}
+
+.edit-inline-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.edit-cancel-btn {
+  padding: 7px 16px;
+  background: white;
+  color: var(--text-secondary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  font-family: inherit;
+  transition: var(--transition);
+}
+
+.edit-cancel-btn:hover {
+  background: var(--bg-hover);
+  color: #111;
+}
+
+.edit-save-btn {
+  padding: 7px 18px;
+  background: #374151;
+  color: white;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  transition: var(--transition);
+}
+
+.edit-save-btn:hover {
+  background: #1f2937;
+}
+/* ══════════════════════════════════════
+   SETTINGS — 3 bo'limli yangi dizayn
+══════════════════════════════════════ */
+.setup-section {
+  margin-bottom: 20px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  background: #fafafa;
+}
+
+.setup-section-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 700;
+  color: #111827;
+  margin-bottom: 6px;
+}
+
+.setup-section-icon {
+  font-size: 18px;
+}
+
+.setup-section-desc {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-bottom: 12px;
+  line-height: 1.5;
+}
+
+.setup-section .setup-field {
+  margin-bottom: 10px;
+}
+
+.setup-section .setup-field:last-child {
+  margin-bottom: 0;
+}
+/* ══════════════════════════════════════
+   AXIS CHART — Line chart in AI messages
+══════════════════════════════════════ */
+.axis-chart-wrap {
+  margin: 16px 0;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 16px 20px 12px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+  max-width: 100%;
+  overflow: hidden;
+}
+
+.axis-chart-canvas {
+  width: 100% !important;
+  height: 240px !important;
+  display: block;
+}
+
+.axis-chart-error {
+  padding: 12px 16px;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+  color: #dc2626;
+  font-size: 13px;
+  font-family: monospace;
+}
+
+/* ── Phosphor Icons sizing ── */
+.ph { font-size: 18px; }
+.ph-bold { font-size: 18px; }
+.sidebar-toggle-btn .ph-bold { font-size: 20px; }
+.new-chat-btn .ph-bold { font-size: 16px; }
+.send-btn .ph-bold { font-size: 16px; }
+.voice-btn .ph-bold { font-size: 22px; }
+.blank-page-header .ph-bold { font-size: 16px; }
+.canvas-header .ph-bold { font-size: 14px; }
+.plus-btn .ph-bold { font-size: 15px; }
+.voice-wave-close .ph-bold { font-size: 16px; }
+.user-action-btn .ph { font-size: 14px; }
+.action-btn .ph { font-size: 16px; }

@@ -1,0 +1,1 @@
+// sherft.js — unused legacy file. Do not add code here.
